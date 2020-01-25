@@ -16,18 +16,16 @@ mass = quad(rho0,0,L)
 rho = lambda x: rho0(x)/mass[0]
 
 # Number of particles
-N = 2000
+N = 200
 
 # Position of particles
-X = np.linspace(0.3,.9,N)
+X = np.linspace(0.1,.9,N)
 
 # Initial guess weights Laguerre cells
 weights = np.zeros(N)
 
 # Masses of particles
 masses = np.ones(N)*1./N
-masses[1:-1:4] = .5/N
-masses = masses/np.sum(masses)
 
 cost = lambda w : evalcost(w, masses,X, rho)
 costgrad = lambda w : evalcostgrad(w, masses,X, rho)
