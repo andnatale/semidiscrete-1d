@@ -30,7 +30,10 @@ def laguerre(X,weights,L):
     Bounds = np.zeros(N+1)
     Bounds[-1] = L
     Bounds[1:-1] =  0.5*(X[1:]+X[:-1] - (weights[1:] - weights[:-1])/(X[1:]-X[:-1]))
-   
+  
+    Bounds[Bounds>=L] = L
+    Bounds[Bounds<=0] = 0 
+    
     return Bounds 
 
 
@@ -94,7 +97,7 @@ def integralrhoCost(X,Bounds,rho):
 
 
 def evalcost(weights, masses,X, rho,L=1.):
-   """ Computes the cost to optimize 
+   """ Computes the cost to minimize 
     
    Parameters:
    ----------
@@ -204,4 +207,129 @@ def evalcosthess(weights,X, rho,L=1.):
 def novanishconstraint(weights,X,L):
    Bounds = laguerre(X,weights,L)
    return Bounds[1:] - Bounds[:-1]
+
+
+#############################################################################################
+# Functions for unbalanced gradient flows ###################################################
+#############################################################################################
+
+
+
+
+
+
+def evalcostEntropy(weights, rho0masses ,X, epsilon, L=1.):
+   """ Computes the cost to minimize: Moreau Yosida regularization with fixed density
+
+                          W^2_2( rho, M_i/|P_i| delta_X_i  )/2epsilon + U(rho0/M)   
+    
+   Parameters:
+   ----------
+   rho0masses: ndarray
+       integrals of initial density rho0 on reference domain decomposition 
+
+   weights: ndarray
+       weights of Laguerre cells
+
+   X: ndarray
+       Positions of particles (ordered)
+
+   Bounds: ndarray
+      Position of cells boundaries (first and last are 0 and L)
+     
+   rho: function
+      Density to integrate  
+
+   epsilon: float
+       Moreau-Yosida regularization
+ 
+   Returns:
+   --------
+   
+   cost: float 
+   
+   costgrad: ndarray
+      Gradient of cost wrt weights
+   """
+   
+   Leb = lambda x : 1.
+   
+   Bounds = laguerre(X,weights,L) 
+   Irc  =  integralrhoCost(X,Bounds,Leb)
+   Ir = integralrho(Bounds,Leb)
+   cost = -(np.dot(rho0masses,np.log(weights/(2*epsilon))) + (np.sum(Irc) -  np.dot(Ir,weights))/(2*epsilon))    
+
+   return cost 
+
+
+def evalcostgradEntropy(weights, rho0masses,X, epsilon, L=1.):
+   """ Computes the cost gradient with respect to the weights
+    
+   Parameters:
+   ----------
+   rho0masses: ndarray
+       integrals of initial density rho0 on reference domain decomposition 
+
+   weights: ndarray
+       weights of Laguerre cells
+
+   X: ndarray
+       Positions of particles (ordered)
+
+   Bounds: ndarray
+      Position of cells boundaries (first and last are 0 and L)
+     
+   rho: function
+      Density to integrate  
+ 
+   Returns:
+   --------
+   
+   cost: float 
+   
+   costgrad: ndarray
+      Gradient of cost wrt weights
+   """
+
+   Leb = lambda x : 1.
+   
+   Bounds = laguerre(X,weights,L)
+   Irc  =  integralrhoCost(X,Bounds,Leb)
+   Ir = integralrho(Bounds,Leb)
+   costgrad =  -rho0masses/weights + Ir/(2*epsilon) 
+      
+ 
+   return  costgrad 
+
+def evalcosthessEntropy(weights, rho0masses, X, epsilon, L=1.):
+   """ Computes the cost hessian with respect to the weights
+    
+   Parameters:
+   ----------
+   rho0masses: ndarray
+       integrals of initial density rho0 on reference domain decomposition 
+
+   weights: ndarray
+       weights of Laguerre cells
+
+   X: ndarray
+       Positions of particles (ordered)
+
+   Bounds: ndarray
+      Position of cells boundaries (first and last are 0 and L)
+     
+   Returns:
+   --------
+    
+   costhess: ndarray
+      Hessian of cost wrt weights
+   """ 
+   Leb = lambda x : 1
+   costhess =  evalcosthess(weights,X,Leb,L)/(2*epsilon) + np.diag(rho0masses/(weights**2))
+   
+   return costhess
+
+
+
+
 
