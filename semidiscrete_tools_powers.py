@@ -53,7 +53,7 @@ class SemiDiscreteSolverPowers:
          
          return np.min(self.Boundup-self.Boundlow)<=1e-10 or np.min(self.Boundlow[1:]-self.Boundlow[:-1])<=1e-10 or np.min(self.Boundup[1:]-self.Boundup[:-1])<=1e-10 
     def quadratureCost(self):
-         """ Computes integral of cost to minimize: -m *weights/(2epsilon) +((-|x-X|^2+weights + mu)/(2 epsilon r))^r over all cells """
+         """ Computes integral of cost to minimize: -m *weights/(2epsilon) +((-|x-X|^2+weights)/(2 epsilon r))^r over all cells """
   
          L = self.Boundlow
          U = self.Boundup
@@ -70,7 +70,7 @@ class SemiDiscreteSolverPowers:
          return - np.dot(self.masses,self.weights)/(2*self.epsilon) + np.sum(integrals)
  
     def quadratureDerCost(self):
-         """ Computes integral of  derivative wrt weights  of cost to minimize: - m/(2*epsilon) + ((-|x-X|^2+weights + mu)/(2 epsilon r))^r over cells """
+         """ Computes integral of  derivative wrt weights  of cost to minimize: - m*weights/(2*epsilon) + ((-|x-X|^2+weights )/(2 epsilon r))^r over cells """
          
          L = self.Boundlow
          U = self.Boundup
@@ -86,7 +86,7 @@ class SemiDiscreteSolverPowers:
          return -self.masses/(2*self.epsilon)+ integrals
  
     def quadratureHessCost(self):
-         """ Computes integral of Hessian wrt weights  of cost to minimize: - m/(2*epsilon) + ((-|x-X|^2+weights + mu)/(2 epsilon r))^r over cells """
+         """ Computes integral of Hessian wrt weights  of cost to minimize: - m*weights/(2*epsilon) + ((-|x-X|^2+weights )/(2 epsilon r))^r over cells """
          
          L = self.Boundlow
          U = self.Boundup
@@ -121,6 +121,9 @@ class SemiDiscreteSolverPowers:
          while error> tol and i< maxIter:
                flag = True
                j = 0
+
+               # Damped Newton if constraints are violated: TO BE FIXED!
+               # Either adapt time step OR identify collapsed cells
                while flag:             
                    weights = self.weights  - tau* np.linalg.solve(Hess, fun)
                    flag = self.updateLaguerre(weights)
@@ -157,8 +160,16 @@ class SemiDiscreteSolverPowers:
          
          return barycenters
 
+    def computeDensity(self, Ndens = 1000):
+        
+        x = np.linspace(0,self.L,Ndens)
+        potentials = -(x.reshape((Ndens,1)) - self.X.reshape((1,self.X.size)))**2 + self.weights.reshape((1,self.X.size))
+        coeff = (self.power-1.)/(self.power*2.*self.epsilon)
+        density = np.power(coeff*np.maximum(np.max(potentials,axis=1),0),1./(self.power-1.))        
+        return density
 
 
 
+   
 
  
