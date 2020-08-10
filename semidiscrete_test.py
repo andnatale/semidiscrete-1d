@@ -11,7 +11,7 @@ import numpy.random as npr
 L = 1.
 
 # Density (mass is normalized to 1)
-rho0 = lambda x: np.sin(2*np.pi*x)**2
+rho0 = lambda x: np.sin(2*np.pi*x)**2 
 mass = quad(rho0,0,L)
 rho = lambda x: rho0(x)/mass[0]
 

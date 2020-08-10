@@ -11,12 +11,14 @@ import numpy.random as npr
 L = 1.
 
 # Density (mass is normalized to 1)
-rho0_temp = lambda x: np.sin(2*np.pi*x)**2+.05
+rho0_temp = lambda x: np.sin(2*np.pi*x)**2+.1
+
+
 mass = quad(rho0_temp,0,L)
 rho0 = lambda x: rho0_temp(x)/mass[0]
 
 # Number of particles
-N = 100
+N = 50
 
 # Position of particles
 X = np.linspace(L/(2*N),L - L/(2*N),N)
@@ -35,7 +37,7 @@ rho0masses = integralrho(Bounds0,rho0)
 ###########################################################
 
 tau = 0.01
-epsilon = 0.02 
+epsilon = 0.05 
 
 
 Ntot = 100
