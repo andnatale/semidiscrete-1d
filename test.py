@@ -14,10 +14,7 @@ power = 2
 solver = sd.SemiDiscreteSolverPowers(X,masses,L,epsilon,power)
 solver.updateWeights(verbose = True)
 
-### Porous media #### 
-
-
-
+# Time step
 tau = epsilon/100
 
 Nt = int(2./tau)
@@ -26,9 +23,12 @@ Xevol = np.zeros((Nt+1,X.size))
 
 Xevol[0,:] = X
 Vevol = Xevol.copy()
+# Initial velocity for second order model
 Vevol[0,:] =2*X*(1. - X)#.1*(X<L/2) #5*(-(.5 - X)**2+.25)
 
+# First order model
 first = False
+
 
 
 for k in range(Nt):
