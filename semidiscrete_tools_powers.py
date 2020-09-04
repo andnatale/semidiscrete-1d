@@ -144,7 +144,9 @@ class SemiDiscreteSolverPowers:
                 print('Warning!! Maximum iteration exceeded')
          else: 
                 if verbose: print('Optimization success!')
-
+        
+         return self.weights
+ 
     def computeBarycenters(self):
  
          L = self.Boundlow
@@ -160,16 +162,27 @@ class SemiDiscreteSolverPowers:
          
          return barycenters
 
-    def computeDensity(self, Ndens = 1000):
-        
+    def computeDensity(self,Xvec,wvec,Ndens = 1000):
+        """ Computes density from array of positions and weights of shapes NumberTimeSteps x NumberParticles""" 
         x = np.linspace(0,self.L,Ndens)
-        potentials = -(x.reshape((Ndens,1)) - self.X.reshape((1,self.X.size)))**2 + self.weights.reshape((1,self.X.size))
+ 
+        if Xvec.ndim ==2: 
+             Ntimes  = Xvec.shape[0]
+             Npart = Xvec.shape[1]
+             shape =(Ndens,Ntimes)
+        elif Xvec.ndim ==1:
+             Ntimes = 1
+             Npart= Xvec.shape[0]
+             shape = (Ndens,) 
+
+        potentials = -(x.reshape((Ndens,1)) - Xvec.reshape((1,Xvec.size)))**2 + wvec.reshape((1,Xvec.size))
         coeff = (self.power-1.)/(self.power*2.*self.epsilon)
-        density = np.power(coeff*np.maximum(np.max(potentials,axis=1),0),1./(self.power-1.))        
-        return density
+        density = np.power(coeff*np.maximum(np.max(potentials.reshape(Ndens,Ntimes,Npart),axis=2),0),1./(self.power-1.))        
+       
+        
+        return density.reshape(shape).T
 
 
-
-   
-
+    def computeCurrentDensity(self, Ndens = 1000):
+        return self.computeDensity(self.X,self.weights,Ndens)
  
