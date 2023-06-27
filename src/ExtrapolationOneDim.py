@@ -5,7 +5,7 @@ from scipy.integrate import quad
 import matplotlib.pyplot as plt
 from scipy.sparse import diags
 from scipy.sparse.linalg import spsolve
-from PowerDiagramOneDim import *
+from .PowerDiagramOneDim import *
 
 class Extrapolation1D():
     """ Extrapolation problem with fixed arrival positions and variable masses"""
@@ -65,7 +65,7 @@ class Extrapolation1D():
          tau = 1e-1
          c_armijo = 0#1e-4 
  
-         F = np.zeros(len(X))
+         F = np.zeros(len(self.X))
          F[self.pd0.indices] +=  self.pd0.compute_integrals_ipp(self.intp_rho0,p=0)
          F[self.pd1.indices] -=  self.pd1.compute_integrals_ipp(self.intp_rho1,p=0)
 
@@ -95,8 +95,8 @@ class Extrapolation1D():
                       cost = self.compute_extrapolation_cost()
 
                       if (cost <= cost_old
-                           and len(self.pd0.indices)==len(X)
-                           and len(self.pd1.indices) == len(X))  or tau<1e-10: break
+                           and len(self.pd0.indices)==len(self.X)
+                           and len(self.pd1.indices) == len(self.X))  or tau<1e-10: break
                       #print(np.dot(deltaw,F))
                       #if cost <=cost_old + c_armijo*tau*np.dot(deltaw,F) : break    
                   
@@ -110,7 +110,7 @@ class Extrapolation1D():
                 cost_old = cost
 
                 i+=1 
-                F = np.zeros(len(X))
+                F = np.zeros(len(self.X))
                 F[self.pd0.indices] += self.pd0.compute_integrals_ipp(self.intp_rho0,p=0)
                 F[self.pd1.indices] -= self.pd1.compute_integrals_ipp(self.intp_rho1,p=0)
 
@@ -120,82 +120,6 @@ class Extrapolation1D():
                 tau = np.min((tau*1.1,1.))
 
          if i< maxIter and verbose: print("Optimization success!")
-
-
-
-N = 10000 
-L = 1.
-masses = np.ones(N)
-#masses[50:86]=1e-6#0.001
-masses = masses/np.sum(masses)
-#X = np.sort(np.random.rand(N))
-#X = (X + np.linspace(0,1,N+1)[:-1])/2
-X = np.linspace(1/2/N,1-1/2/N,N)
-
-# TEST OT
-#c= 0.1
-#rho0 = lambda x: np.maximum(x-.5,0) +c
-#int_rho0 = lambda x : rho0(x)**2/2 +c*x
-#int2_rho0 = lambda x : rho0(x)**3/6 + c*x**2/2
-#int3_rho0 = lambda x : rho0(x)**4/24+ c*x**3/6
-#intp_rho0 = [int_rho0,int2_rho0,int3_rho0]
-#
-#mass = int_rho0(L)-int_rho0(0)
-#masses = masses*mass
-#
-#ot = OptimalTransport1D(X,masses,rho0,intp_rho= intp_rho0, L=L)#intp_rho = intp_rho0,L=L)
-#ot.update_weights(maxIter=10000,verbose =True)
-
-# TEST EXTRAPOLATION
-c=1.
-d=2.
-rho0 = lambda x: x*d + c 
-int_rho0 = lambda x : d*x**2/2 +c*x
-int2_rho0 = lambda x : d*x**3/6  +c *x**2/2
-int3_rho0 = lambda x : d*x**4/24 +c *x**3/6
-intp_rho0 = [int_rho0,int2_rho0,int3_rho0] 
-
-rho1 = lambda x: d*(1.-x) + c
-int_rho1 = lambda x : d*(x - x**2/2) + c*x 
-int2_rho1 = lambda x : d*(x**2/2 -x**3/6)  +c* x**2/2
-int3_rho1 = lambda x : d*(x**3/6 -x**4/24) +c* x**3/6
-intp_rho1 = [int_rho1,int2_rho1,int3_rho1] 
-
-
-c=1.
-rho0 = lambda x: np.cos(2*np.pi*x)+c 
-int_rho0 = lambda x : np.sin(2*np.pi*x)/(2*np.pi) +c*x
-int2_rho0 = lambda x : -np.cos(2*np.pi*x)/(2*np.pi)**2  +c *x**2/2
-int3_rho0 = lambda x : -np.sin(2*np.pi*x)/(2*np.pi)**3 +c *x**3/6
-intp_rho0 = [int_rho0,int2_rho0,int3_rho0] 
-
-rho1 = lambda x: -np.cos(2*np.pi*x)+c 
-int_rho1 = lambda x : -np.sin(2*np.pi*x)/(2*np.pi) + c*x
-int2_rho1 = lambda x : np.cos(2*np.pi*x)/(2*np.pi)**2  +c* x**2/2 
-int3_rho1 = lambda x : np.sin(2*np.pi*x)/(2*np.pi)**3 +c* x**3/6 
-intp_rho1 = [int_rho1,int2_rho1,int3_rho1] 
-
-
-alpha = 1.0#000000001
-beta =  0.0#000000001
-
-
-et = Extrapolation1D(alpha,beta,X, rho0,rho1, intp_rho0,intp_rho1)
-et.update_weights(maxIter=10000,verbose =True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

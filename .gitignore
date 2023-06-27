@@ -2,6 +2,7 @@
 old_tests/
 old_version/
 src/__pycache__/
+src/old_files/
 __pycache__/
 *.pyc
 
