@@ -1,0 +1,13 @@
+
+old_tests/
+old_version/
+src/__pycache__/
+__pycache__/
+*.pyc
+
+# Ignore vim files:
+*~
+*.swp
+*.swo
+*.swn
+

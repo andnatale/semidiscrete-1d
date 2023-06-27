@@ -1,8 +1,15 @@
-# A simple implementation of 1d semi-discrete optimal transport
+# One-dimensional semi-discrete optimal transport toolbox 
 
-A Python implementaion of 1d semi-discrete optimal transport
+Python implemenation of one-dimensional semi-discrete optimal transport problems, and Wasserstein gradient flow discretizations.
 
-## Includes
+Some of the codes are based on the article:
 
-semidiscrete_tools.py --> Module for computation of Laguerre cells, cost function, its gradient and hessian. 
-semidiscrete_test.py  --> A sample test 
+Thomas Gallouët, Andrea Natale, Gabriele Todeschi. [*"From geodesic extrapolation to a variational BDF2 scheme for Wasserstein gradient flows"*](https://hal.science/hal-03790981) (2023).
+
+## Source codes
+
+PowerDiagramOneDim: class for construction of power diagrams for quadratic cost
+OptimalTransportOneDim: class for solution of semi-discrete optimal transport
+ExtrapolationOneDim: class for metric extrapolation problem
+
+
