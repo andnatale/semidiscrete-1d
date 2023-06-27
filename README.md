@@ -8,8 +8,8 @@ Thomas Gallouët, Andrea Natale, Gabriele Todeschi. [*"From geodesic extrapolati
 
 ## Source codes
 
-PowerDiagramOneDim: class for construction of power diagrams for quadratic cost
-OptimalTransportOneDim: class for solution of semi-discrete optimal transport
-ExtrapolationOneDim: class for metric extrapolation problem
+* *PowerDiagramOneDim*: class for construction of power diagrams for quadratic cost
+* *OptimalTransportOneDim*: class for solution of semi-discrete optimal transport
+* *ExtrapolationOneDim*: class for metric extrapolation problem
 
 
